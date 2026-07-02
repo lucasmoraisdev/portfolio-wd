@@ -102,9 +102,9 @@ class CORSSettings(BaseSettings):
         case_sensitive=False,
     )
 
-    cors_origins: list[str] = Field(alias="CORS_ORIGINS", default=["*"])
+    origin: list[str] = Field(alias="CORS_ORIGINS", default=["*"])
     
-    @field_validator("cors_origins", mode="before")
+    @field_validator("origin", mode="before")
     @classmethod
     def parse_origins(cls, v: Any) -> list[str]:
         if isinstance(v, str):

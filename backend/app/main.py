@@ -1,7 +1,14 @@
 from fastapi import FastAPI
+from app.core.config import settings
+from app.core.lifespan import lifespan
 from structlog import get_logger
 
-app = FastAPI(title="CMS WD Eventos Landing page", version="1.0.0", description="CMS WD Eventos Landing page")
+app = FastAPI(
+    title=settings.app.name,
+    version=settings.app.version,
+    lifespan=lifespan,
+)
+
 logger = get_logger(__name__)
 
 @app.get("/health")
