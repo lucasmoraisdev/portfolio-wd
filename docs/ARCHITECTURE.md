@@ -63,3 +63,65 @@ FastAPI
 ↓
 
 PostgreSQL
+
+## Login
+email
+senha
+
+↓
+
+JWT
+
+## Logout
+POST /auth/logout
+
+↓
+
+204 No Content
+
+## Esqueci senha
+POST /auth/forgot-password
+
+{
+    "email": "user@email.com"
+}
+
+↓
+
+gera token
+
+↓
+
+salva hash do token
+
+↓
+
+define expiração
+
+↓
+
+envia e-mail
+
+## Resetar senha
+POST /auth/reset-password
+
+{
+    "token": "...",
+    "password": "NovaSenha123!"
+}
+
+↓
+
+valida token
+
+↓
+
+altera senha
+
+↓
+
+invalida token
+
+↓
+
+200 OK

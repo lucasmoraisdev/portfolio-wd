@@ -32,6 +32,13 @@ class UserRepository:
         stmt = select(User).where(User.email == email)
         return self._db.scalar(stmt)
     
+    def get_by_reset_token(self, token: str) -> User | None:
+        stmt = select(User).where(
+            User.password_reset_token == token
+        )
+
+        return self._db.scalar(stmt)
+    
     def list(
         self,
         *,

@@ -11,11 +11,12 @@ from app.modules.user.schemas import (
     UserUpdate
 )
 from app.modules.user.service import UserService
+from app.modules.user.constants import USER_PREFIX, USER_TAG
 from app.shared.database import get_db
 
 router = APIRouter(
-    prefix="/users",
-    tags=["Users"]
+    prefix=USER_PREFIX,
+    tags=[USER_TAG]
 )
 
 def get_user_service(
