@@ -1,0 +1,1 @@
+USER_TABLE__NAME = "users"
