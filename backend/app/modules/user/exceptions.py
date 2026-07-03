@@ -28,12 +28,6 @@ class UserInactiveException(UserException):
     def __init__(self):
         super().__init__("User is inactive.")
 
-class UserInactiveException(UserException):
-    """Raised when an operation requires an active user."""
-
-    def __init__(self):
-        super().__init__("User is inactive.")
-
 class InvalidUserDataException(UserException):
     """Raised when user data is invalid."""
 
