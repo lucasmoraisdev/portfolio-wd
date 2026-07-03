@@ -16,7 +16,7 @@ class User(Base, TimestampMixin):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, server_default="true")
-    password_reset_token: Mapped[str | None] = mapped_column(String(255, nullable=True))
+    password_reset_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
     password_reset_expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     def __repr__(self) -> str:
