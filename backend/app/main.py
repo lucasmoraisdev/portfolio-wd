@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.core.config import settings
 from app.core.lifespan import lifespan
 from structlog import get_logger
+from shared.exceptions.handlers import register_exception_handlers
 
 app = FastAPI(
     title=settings.app.name,
@@ -10,6 +11,7 @@ app = FastAPI(
 )
 
 logger = get_logger(__name__)
+register_exception_handlers(app)
 
 @app.get("/health")
 async def health_check():

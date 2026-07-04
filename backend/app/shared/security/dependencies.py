@@ -6,8 +6,10 @@ from app.modules.user.models import User
 from app.modules.user.repository import UserRepository
 from app.shared.database import get_db
 from app.shared.security.jwt import decode_access_token
-from app.modules.auth.exceptions import InvalidCredentialsException
-from app.modules.user.exceptions import UserInactiveException
+from app.shared.exceptions import (
+    InvalidCredentialsException,
+    UserInactiveException
+)
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login",

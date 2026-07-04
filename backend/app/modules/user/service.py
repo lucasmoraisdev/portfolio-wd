@@ -1,15 +1,15 @@
 from uuid import UUID
 
-from app.modules.user.exceptions import (
-    UserAlreadyExistsException,
-    UserNotFoundException
-)
 from app.modules.user.models import User
 from app.modules.user.repository import UserRepository
 from app.modules.user.schemas import (
     UserCreate,
     UserFilter,
     UserUpdate,
+)
+from app.shared.exceptions import (
+    UserAlreadyExistsException,
+    UserNotFoundException
 )
 
 class UserService:
@@ -18,7 +18,7 @@ class UserService:
     
     def create(self, data: UserCreate) -> User:
         if self._repository.exists_by_email(data.email):
-            raise UserAlreadyExistsException(email=data.email)
+            raise UserAlreadyExistsException(field="email", value=data.email)
         
         user = User(
             name=data.name,
@@ -60,7 +60,7 @@ class UserService:
             existing = self._repository.get_by_email(update_data["email"])
 
             if existing and existing.id != user.id:
-                raise UserAlreadyExistsException(update_data["email"])
+                raise UserAlreadyExistsException(field="email", value=update_data["email"])
             
         for f, v in update_data.items():
             setattr(user, "hashed_password" if f == "password" else f, v)

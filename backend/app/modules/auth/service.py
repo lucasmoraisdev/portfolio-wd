@@ -1,7 +1,7 @@
 from datetime import datetime, UTC, timedelta
 from secrets import token_urlsafe
 
-from app.modules.auth.exceptions import (
+from app.shared.exceptions import (
     InvalidCredentialsException,
     InvalidTokenException,
     ExpiredTokenException
@@ -28,7 +28,7 @@ class AuthService:
         user = self._repository.get_by_email(credentials.email)
 
         if user is None or not user.is_active:
-            raise InvalidCredentialsException(())
+            raise InvalidCredentialsException()
         
         if not verify_password(
             credentials.password,
