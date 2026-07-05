@@ -8,13 +8,16 @@ from app.modules.auth.schemas import (
     MeResponse,
     TokenResponse,
     ForgotPasswordRequest,
-    ResetPasswordRequest
+    ResetPasswordRequest,
+    AuthMeApiResponse,
+    AuthTokenApiResponse
 )
 from app.modules.auth.service import AuthService
 from app.modules.user.models import User
 from app.modules.user.repository import UserRepository
 from app.shared.database import get_db
 from app.shared.security.dependencies import get_current_user
+from app.shared.responses import api_response, ApiResponse, paginated_response
 
 router = APIRouter(
     prefix=AUTH_PREFIX,
@@ -29,9 +32,10 @@ def get_auth_service(
 
     return AuthService(repository)
 
+# ─── LOGIN ─────────────────────────────────────────────
 @router.post(
     "/login",
-    response_model=TokenResponse
+    response_model=AuthTokenApiResponse[TokenResponse]
 )
 def login(
     payload: LoginRequest,
@@ -39,10 +43,10 @@ def login(
 ) -> TokenResponse:
     return service.login(payload)
 
-
+# ─── ME ─────────────────────────────────────────────
 @router.get(
     "/me",
-    response_model=MeResponse
+    response_model=AuthMeApiResponse[MeResponse]
 )
 def me(
     current_user: User = Depends(get_current_user),
@@ -50,6 +54,7 @@ def me(
 ) -> MeResponse:
     return service.me(current_user)
 
+# ─── LOGOUT ─────────────────────────────────────────────
 @router.post(
     "/logout",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -60,6 +65,7 @@ def logout(
     service.logout()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+# ─── FORGOT-PASSWORD ─────────────────────────────────────────────
 @router.post(
     "/forgot-password",
     status_code=status.HTTP_204_NO_CONTENT,

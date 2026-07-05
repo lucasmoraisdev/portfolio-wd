@@ -10,8 +10,15 @@
 
 {
     "success": false,
-    "message": "Validation error.",
-    "errors": []
+    "error": {
+        "code": "USER_NOT_FOUND",
+        "message": "Usuário '123' não encontrado",
+        "status_code": 404,
+        "details": {
+        "user_id": "123"
+        },
+        "path": "/api/users/123"
+    }
 }
 
 # Resposta padrão paginada para API

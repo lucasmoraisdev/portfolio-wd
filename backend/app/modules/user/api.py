@@ -8,11 +8,13 @@ from app.modules.user.schemas import (
     UserCreate,
     UserFilter,
     UserResponse,
-    UserUpdate
+    UserUpdate,
+    UserApiResponse
 )
 from app.modules.user.service import UserService
 from app.modules.user.constants import USER_PREFIX, USER_TAG
 from app.shared.database import get_db
+from app.shared.responses import api_response, ApiResponse, paginated_response
 
 router = APIRouter(
     prefix=USER_PREFIX,
@@ -25,19 +27,42 @@ def get_user_service(
     repository = UserRepository(db)
     return UserService(repository=repository)
 
+# ─── LISTAR USUÁRIOS ─────────────────────────────────────────────
 @router.get(
     "",
-    response_model=list[UserResponse]
+    response_model=UserApiResponse[dict]
 )
+@api_response(message="Users listed successfully")
 def list_users(
     filters: UserFilter = Depends(),
     service: UserService = Depends(get_user_service)
-) -> list[UserResponse]:
-    return service.list[filters]
+) -> dict:
+    """
+    Lista usuários com filtros e paginação.
 
+    Retorna:
+    {
+        "success": true,
+        "message": "users listed successfuly",
+        "data": {
+            "items": [...],
+            "pagination": { "total": 10, "page": 1, "per_page": 20, "total_pages": 1}
+        }
+    }
+    """
+    items, total = service.list(filters)
+    return paginated_response(
+        items=items,
+        total=total,
+        page=filters.page,
+        per_page=filters.per_page,
+        message="Users listed successfully"
+    )
+
+# ─── OBTER USUÁRIO POR ID ────────────────────────────────────────
 @router.get(
     "/{user_id}",
-    response_model=UserResponse
+    response_model=UserApiResponse[UserResponse]
 )
 def get_user(
     user_id: UUID,
@@ -45,10 +70,10 @@ def get_user(
 ) -> UserResponse:
     return service.get_by_id(user_id)
 
-
+# ─── CRIAR USUÁRIO ───────────────────────────────────────────────
 @router.post(
     "",
-    response_model=UserResponse,
+    response_model=UserApiResponse[UserResponse],
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -57,10 +82,10 @@ def create_user(
 ) -> UserResponse:
     return service.create(payload)
 
-
+# ─── ATUALIZAR USUÁRIO ───────────────────────────────────────────────
 @router.patch(
     "/{user_id}",
-    response_model=UserResponse,
+    response_model=UserApiResponse[UserResponse],
 )
 def update_user(
     user_id: UUID,
@@ -69,14 +94,15 @@ def update_user(
 ) -> UserResponse:
     return service.update(user_id, payload)
 
-
+# ─── DELETAR USUÁRIO ───────────────────────────────────────────────
 @router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_model=ApiResponse[None]
 )
 def delete_user(
     user_id: UUID,
     service: UserService = Depends(get_user_service),
 ) -> Response:
     service.delete(user_id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return None
