@@ -156,9 +156,7 @@ async def business_exception_handler(
         content=jsonable_encoder(response),
     )
 
-
 # ─── Handler: Exception genérica (fallback) ──────────────────────
-
 async def unhandled_exception_handler(
     request: Request,
     exc: Exception,
@@ -202,7 +200,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(StarletteHttpException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(BusinessException, business_exception_handler)
-    # TODO ADICIONAR OUTROS HANDLERS
+    app.add_exception_handler(BusinessException, business_exception_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
     logger.info("Exception handlers registered successfully")

@@ -80,8 +80,8 @@ class StorageSettings(BaseSettings):
         case_sensitive=False,
     )
 
-    upload_directory: str = Field()
-    max_upload_size: int = Field()
+    upload_directory: str = Field(alias="STORAGE_UPLOAD_DIRECTORY")
+    max_upload_size: int = Field(alias="STORAGE_MAX_UPLOAD_SIZE")
 
     @field_validator("upload_directory")
     @classmethod

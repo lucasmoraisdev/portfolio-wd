@@ -13,6 +13,10 @@ from .exceptions import (
     ResourceAlreadyExistsException,
     ValidationException,
     ConflictException,
+    InvalidFileExtensionException,
+    FileTooLargeException,
+    FileNotFoundException,
+    FileCorruptedException
 )
 
 from .handlers import (
@@ -37,4 +41,8 @@ __all__ = [
     "ResourceAlreadyExistsException",
     "ValidationException",
     "ConflictException",
+    "InvalidFileExtensionException",
+    "FileTooLargeException",
+    "FileNotFoundException",
+    "FileCorruptedException"
 ]

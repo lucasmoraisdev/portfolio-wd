@@ -7,7 +7,7 @@ from app.modules.user.models import User
 
 class UserRepository:
     def __init__(self, db: Session):
-        self.db = db
+        self._db = db
 
     def create(self, user: User) -> User:
         self._db.add(user)
@@ -55,7 +55,7 @@ class UserRepository:
             .limit(page_size)
         )
 
-        return list(self._db.scalars(stmt).all())
+        return self._db.scalars(stmt).all()
     
     def exists_by_email(self, email: str) -> bool:
         stmt = select(User.id).where(User.email == email)

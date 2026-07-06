@@ -113,6 +113,67 @@ class InvalidUserDataException(BusinessException):
 # ────────── Módulo Testimonials ────────────────────────────────────────────────────
 # ────────── Módulo Toys ────────────────────────────────────────────────────────────
 # ────────── Módulo Settings ────────────────────────────────────────────────────────
+# ────────── Módulo Uploads ─────────────────────────────────────────────────────────
+class InvalidFileExtensionException(BusinessException):
+    """Extensão de arquivo não permitida"""
+    def __init__(self, extension: str, allowed: set[str] | None = None):
+        allowed_list = ", ".join(sorted(allowed)) if allowed else ""
+        message = (
+            f"Extensão \".{extension}\" não permitida. Extensões aceitas: {allowed_list}"
+        ) if allowed else f"Extensão \".{extension}\" não permitida."
+        
+        super().__init__(message=message,
+            status_code=415,
+            error_code="INVALID_FILE_EXTENSION",
+            details={}
+        )
+class FileTooLargeException(BusinessException):
+    """Arquivo excede o tamanho máximo permitido."""
+    def __init__(self, size: int, max_size: int):
+        size_mb = size / (1024 * 1024)
+        max_mb = max_size / (1024 * 1024)
+        super().__init__(
+            message=(
+                f"Arquivo muito grande({size_mb:.2f} MB)."
+                f"Tamanho máximo permitido: {max_mb:.2f} MB."
+            ),
+            status_code=413,
+            error_code="FILE_TOO_LARGE",
+            details={}
+        )
+class FileNotFoundException(BusinessException):
+    """Arquivo não encontrado no storage."""
+
+    def __init__(self, filename: str | None = None):
+        message = f"Arquivo \"{filename}\" não encontrado" if filename else "Arquivo não encontrado"
+        super().__init__(
+            message=message,
+            status_code=404,
+            error_code="FILE_NOT_FOUND",
+            details={}
+        )
+
+class FileCorruptedException(BusinessException):
+    """Arquivo corrompido ou tipo não corresponde à extensão."""
+
+    def __init__(self, message: str = "Arquivo corrompido ou tipo inválido"):
+        super().__init__(
+            message=message,
+            status_code=400,
+            error_code="FILE_CORRUPTED",
+            details={}
+        )
+
+class StorageException(BusinessException):
+    """Erro ao acessar o storage"""
+
+    def __init__(self, message: str = "Erro no storage"):
+        super().__init__(
+            message=message,
+            status_code=400,
+            error_code="STORAGE_ERROR",
+            details={}
+        )
 # ────────── Exceções genéricas reutilizáveis ───────────────────────────────────────
 class ResourceNotFoundException(BusinessException):
     """Recurso genérico não encontrado"""
