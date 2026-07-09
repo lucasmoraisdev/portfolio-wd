@@ -43,66 +43,66 @@ class UploadService:
         self.repository = repository
         self.storage = storage or LocalStorageBackend()
 
-        async def upload(
-            self,
-            file: UploadFile,
-            file_type: str = "images",
-        ) -> UploadResponse:
-            """
-            Processa o upload de um arquivo.
+    async def upload(
+        self,
+        file: UploadFile,
+        file_type: str = "images",
+    ) -> UploadResponse:
+        """
+        Processa o upload de um arquivo.
 
-            Args:
-                file: Arquivo recebido via multipart/form-data.
-                file_type: Tipo de arquivo para organização em diretórios (imagens, documentos, avatares, etc...)
+        Args:
+            file: Arquivo recebido via multipart/form-data.
+            file_type: Tipo de arquivo para organização em diretórios (imagens, documentos, avatares, etc...)
 
-            Returns:
-                UploadResponse com metadados do arquivo salvo.
-            """
-            self._validate_file(file)
+        Returns:
+            UploadResponse com metadados do arquivo salvo.
+        """
+        self._validate_file(file)
 
-            file_info = self._generate_file_info(file, file_type)
+        file_info = self._generate_file_info(file, file_type)
 
-            file_size = await self.storage.save(
-                file_stream=file.file,
-                destination_path=file_info.file_path,
-            )
+        file_size = await self.storage.save(
+            file_stream=file.file,
+            destination_path=file_info.file_path,
+        )
 
-            file_info.file_size = file_size
+        file_info.file_size = file_size
 
-            public_url = self.storage.get_public_url(file_info.file_path)
+        public_url = self.storage.get_public_url(file_info.file_path)
 
-            upload_record = self.repository.create(file_info, public_url)
+        upload_record = self.repository.create(file_info, public_url)
 
-            logger.info(
-                "Upload realizado: %s -> %s (%d bytes)",
-                file_info.original_filename,
-                file_info.stored_filename,
-                file_size
-            )
+        logger.info(
+            "Upload realizado: %s -> %s (%d bytes)",
+            file_info.original_filename,
+            file_info.stored_filename,
+            file_size
+        )
 
-            return UploadResponse.model_validate(upload_record)
+        return UploadResponse.model_validate(upload_record)
+    
+    async def delete(self, upload_id: UUID) -> UploadResponse:
+        """
+        Remove um arquivo do storage e marca como deletado do banco.
+
+        Args:
+            upload_id: ID do upload no banco de dados.
+
+        Returns:
+            UploadResponse do arquivo removido.
+        """
+        upload = self.repository.get_by_id(upload_id)
+        if not upload:
+            raise FileNotFoundException(str(upload_id))
         
-        async def delete(self, upload_id: UUID) -> UploadResponse:
-            """
-            Remove um arquivo do storage e marca como deletado do banco.
+        await self.storage.delete(upload.file_path)
 
-            Args:
-                upload_id: ID do upload no banco de dados.
+        self.repository.soft_delete(upload_id)
 
-            Returns:
-                UploadResponse do arquivo removido.
-            """
-            upload = self.repository.get_by_id(upload_id)
-            if not upload:
-                raise FileNotFoundException(str(upload_id))
-            
-            await self.storage.delete(upload.file_path)
+        logger.info("Upload removido: %s", upload.stored_filename)
 
-            self.repository.soft_delete(upload_id)
-
-            logger.info("Upload removido: %s", upload.stored_filename)
-
-            return UploadResponse.model_validate(upload)
+        return UploadResponse.model_validate(upload)
         
     def get_by_id(self, upload_id: UUID) -> UploadResponse:
         """Busca um upload pelo ID"""

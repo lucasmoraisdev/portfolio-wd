@@ -20,7 +20,13 @@ from .exceptions import (
     StorageException,
     SettingReadOnlyException,
     SettingsNotFoundException,
-    InvalidSettingValueException
+    InvalidSettingValueException,
+    ToyException,
+    ToyInactiveException,
+    ToyNameAlreadyExistsException,
+    ToyNotFoundException,
+    ToySlugAlreadyExistsException,
+    InvalidAgeRangeException
 )
 
 from .handlers import (
@@ -53,4 +59,10 @@ __all__ = [
     "SettingReadOnlyException",
     "SettingsNotFoundException",
     "InvalidSettingValueException",
+    "ToyException",
+    "ToyInactiveException",
+    "ToyNameAlreadyExistsException",
+    "ToyNotFoundException",
+    "ToySlugAlreadyExistsException",
+    "InvalidAgeRangeException",
 ]

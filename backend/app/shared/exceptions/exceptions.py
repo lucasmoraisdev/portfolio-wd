@@ -112,8 +112,77 @@ class InvalidUserDataException(BusinessException):
 # ────────── Módulo Team ────────────────────────────────────────────────────────────
 # ────────── Módulo Testimonials ────────────────────────────────────────────────────
 # ────────── Módulo Toys ────────────────────────────────────────────────────────────
+class ToyException(BusinessException):
+    """Base para exceções de brinquedos."""
+    def __init__(
+        self,
+        message: str = "Erro no brinquedo",
+        status_code: int = 400,
+        error_code: str = "TOY_ERROR"
+    ):
+        super().__init__(
+            message=message,
+            status_code=status_code,
+            error_code=error_code
+        )
+
+class ToyNotFoundException(ToyException):
+    """Brinquedo não encontrado."""
+    def __init__(
+        self,
+        toy_id: str | None = None,
+        slug: str | None = None
+    ):
+        if slug:
+            message = f"Brinquedo com slug \"{slug}\" não encontrado"
+        elif toy_id:
+            message = f"Brinquedo \"{toy_id}\" não encontrado"
+        else:
+            message = f"Brinquedo não encontrado"
+        super().__init__(
+            message=message,
+            status_code=self.status_code,
+            error_code="TOY_NOT_FOUND"
+        )
+
+class ToySlugAlreadyExistsException(ToyException):
+    """Slug já em uso."""
+    def __init__(self, slug: str | None = None):
+        super().__init__(
+            message=f"Slug \"{slug}\" já em uso",
+            status_code=self.status_code,
+            error_code="TOY_SLUG_EXISTS"
+        )
+
+class ToyNameAlreadyExistsException(ToyException):
+    """Nome do brinquedo já em uso."""
+    def __init__(self, name: str | None = None):
+        super().__init__(
+            message=f"Brinquedo \"{name}\" já em uso",
+            status_code=self.status_code,
+            error_code="TOY_NAME_EXISTS"
+        )
+
+class InvalidAgeRangeException(ToyException):
+    """Faixa etária inválida."""
+    def __init__(self, min_age: int, max_age: int):
+        super().__init__(
+            message=f"Faixa etária inválida: {min_age}-{max_age}. A idade mínima deve ser menor ou igual à máxima.",
+            status_code=422,
+            error_code="INVALID_AGE_RANGE",
+        )
+
+class ToyInactiveException(ToyException):
+    """Brinquedo inativo."""
+    def __init__(self, toy_id: str):
+        super().__init__(
+            message=f"Brinquedo \"{toy_id}\" está inativo",
+            status_code=400,
+            error_code="TOY_INACTIVE",
+        )
 # ────────── Módulo Settings ────────────────────────────────────────────────────────
 # ────────── Módulo Uploads ─────────────────────────────────────────────────────────
+
 class InvalidFileExtensionException(BusinessException):
     """Extensão de arquivo não permitida"""
     def __init__(self, extension: str, allowed: set[str] | None = None):
@@ -127,6 +196,7 @@ class InvalidFileExtensionException(BusinessException):
             error_code="INVALID_FILE_EXTENSION",
             details={}
         )
+
 class FileTooLargeException(BusinessException):
     """Arquivo excede o tamanho máximo permitido."""
     def __init__(self, size: int, max_size: int):
@@ -141,6 +211,7 @@ class FileTooLargeException(BusinessException):
             error_code="FILE_TOO_LARGE",
             details={}
         )
+
 class FileNotFoundException(BusinessException):
     """Arquivo não encontrado no storage."""
 
@@ -163,7 +234,7 @@ class FileCorruptedException(BusinessException):
             error_code="FILE_CORRUPTED",
             details={}
         )
-
+# ────────── Módulo Storage ─────────────────────────────────────────────────────────
 class StorageException(BusinessException):
     """Erro ao acessar o storage"""
 
@@ -174,56 +245,8 @@ class StorageException(BusinessException):
             error_code="STORAGE_ERROR",
             details={}
         )
-# ────────── Exceções genéricas reutilizáveis ───────────────────────────────────────
-class ResourceNotFoundException(BusinessException):
-    """Recurso genérico não encontrado"""
 
-    def __init__(self, resource: str = "recurso", resource_id: str | None = None):
-        message = f"{resource} '{resource_id}' não encontrado" if resource_id else f"{resource} não encontrado"
-        super().__init__(
-            message=message,
-            status_code=404,
-            error_code="RESOURCE_NOT_FOUND",
-            details={"resource": resource, "resource_id": resource_id} if resource_id else {"resource": resource},
-        )
-
-
-class ResourceAlreadyExistsException(BusinessException):
-    """Recurso genérico já existe."""
-
-    def __init__(self, resource: str = "recurso", field: str | None = None, value: str | None = None):
-        message = f"{resource} já existe" + (f" com {field}='{value}'" if field and value else "")
-        super().__init__(
-            message=message,
-            status_code=409,
-            error_code="RESOURCE_ALREADY_EXISTS",
-            details={"resource": resource, "field": field, "value": value} if field else {"resource": resource},
-        )
-
-
-class ValidationException(BusinessException):
-    """Erro de validação de negócio (diferente do RequestValidationError do Pydantic)."""
-
-    def __init__(self, message: str = "Dados inválidos", field: str | None = None):
-        super().__init__(
-            message=message,
-            status_code=422,
-            error_code="VALIDATION_ERROR",
-            details={"field": field} if field else {},
-        )
-
-
-class ConflictException(BusinessException):
-    """Conflito de estado (ex: recurso em uso, não pode deletar)."""
-
-    def __init__(self, message: str = "Conflito de estado"):
-        super().__init__(
-            message=message,
-            status_code=409,
-            error_code="CONFLICT",
-            details={}
-        )
-
+# ────────── Módulo Settings ────────────────────────────────────────────────────────
 class SettingsNotFoundException(BusinessException):
     """Configuração não encontrada"""
     
@@ -248,7 +271,6 @@ class InvalidSettingValueException(BusinessException):
             details={}
         )
 
-
 class SettingReadOnlyException(BusinessException):
     """Tentativa de alterar uma configuração somente leitura."""
 
@@ -257,5 +279,52 @@ class SettingReadOnlyException(BusinessException):
             message=f"Configuração \"{key}\" é somente leitura",
             status_code=403,
             error_code="SETTING_READ_ONLY",
+            details={}
+        )
+
+# ────────── Exceções genéricas reutilizáveis ───────────────────────────────────────
+class ResourceNotFoundException(BusinessException):
+    """Recurso genérico não encontrado"""
+
+    def __init__(self, resource: str = "recurso", resource_id: str | None = None):
+        message = f"{resource} '{resource_id}' não encontrado" if resource_id else f"{resource} não encontrado"
+        super().__init__(
+            message=message,
+            status_code=404,
+            error_code="RESOURCE_NOT_FOUND",
+            details={"resource": resource, "resource_id": resource_id} if resource_id else {"resource": resource},
+        )
+
+class ResourceAlreadyExistsException(BusinessException):
+    """Recurso genérico já existe."""
+
+    def __init__(self, resource: str = "recurso", field: str | None = None, value: str | None = None):
+        message = f"{resource} já existe" + (f" com {field}='{value}'" if field and value else "")
+        super().__init__(
+            message=message,
+            status_code=409,
+            error_code="RESOURCE_ALREADY_EXISTS",
+            details={"resource": resource, "field": field, "value": value} if field else {"resource": resource},
+        )
+
+class ValidationException(BusinessException):
+    """Erro de validação de negócio (diferente do RequestValidationError do Pydantic)."""
+
+    def __init__(self, message: str = "Dados inválidos", field: str | None = None):
+        super().__init__(
+            message=message,
+            status_code=422,
+            error_code="VALIDATION_ERROR",
+            details={"field": field} if field else {},
+        )
+
+class ConflictException(BusinessException):
+    """Conflito de estado (ex: recurso em uso, não pode deletar)."""
+
+    def __init__(self, message: str = "Conflito de estado"):
+        super().__init__(
+            message=message,
+            status_code=409,
+            error_code="CONFLICT",
             details={}
         )
