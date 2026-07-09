@@ -5,19 +5,13 @@ from uuid import UUID
 from fastapi import UploadFile
 
 from .constants import SettingKeys
-from app.shared.exceptions import (
-    SettingNotFoundException
-)
-from .repository import SettingRepository
+from .repository import SettingsRepository
 from .schemas import (
     SettingPublicResponse,
     SettingAdminResponse,
-    SettingResponse,
-    UploadReferences
+    SettingResponse
 )
 from app.modules.upload.service import UploadService
-from app.modules.upload.repository import UploadRepository
-from app.shared.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +27,7 @@ class SettingsService:
 
     def __init__(
         self,
-        repository: SettingRepository,
+        repository: SettingsRepository,
         upload_service: UploadService | None = None,
     ) -> None:
         self._repository = repository

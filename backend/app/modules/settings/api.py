@@ -14,7 +14,7 @@ Endpoints:
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
 from .constants import SETTINGS_PREFIX, SETTINGS_TAG
@@ -30,7 +30,7 @@ from app.modules.upload.service import UploadService
 from app.modules.upload.repository import UploadRepository
 from app.shared.database import get_db
 from app.shared.responses import api_response, ApiResponse
-from app.shared.security import get_current_user # TODO
+from app.shared.security.dependencies import get_current_user
 
 router = APIRouter(
     prefix=SETTINGS_PREFIX,
