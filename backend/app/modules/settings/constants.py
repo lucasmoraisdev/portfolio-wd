@@ -1,5 +1,6 @@
 SETTINGS_PREFIX="/settings"
 SETTINGS_TAG="Settings"
+SETTINGS_TABLE_NAME="settings"
 
 DEFAULT_SECTIONS=[
     "hero",

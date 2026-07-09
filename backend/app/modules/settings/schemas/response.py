@@ -26,8 +26,6 @@ class SettingPublicResponse(SettingBase):
     footer: dict[str, Any] = Field(default_factory=dict)
     general: dict[str, Any] = Field(default_factory=dict)
     uploads: dict[str, str | Any] = Field(default_factory=dict)
-    company: dict[str, Any] = Field(default_factory=dict)
-    company: dict[str, Any] = Field(default_factory=dict)
 
 class SettingAdminResponse(SettingBase):
     """Resposta admin com tudo"""
@@ -45,5 +43,3 @@ class SettingAdminResponse(SettingBase):
     footer: dict[str, Any] = Field(default_factory=dict)
     general: dict[str, Any] = Field(default_factory=dict)
     uploads: dict[str, str | Any] = Field(default_factory=dict)
-    company: dict[str, Any] = Field(default_factory=dict)
-    company: dict[str, Any] = Field(default_factory=dict)
