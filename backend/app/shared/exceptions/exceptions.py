@@ -221,4 +221,41 @@ class ConflictException(BusinessException):
             message=message,
             status_code=409,
             error_code="CONFLICT",
+            details={}
+        )
+
+class SettingsNotFoundException(BusinessException):
+    """Configuração não encontrada"""
+    
+    def __init__(self, key: str | None = None):
+        message = f"Configuração \"{key}\" não encontrada" if key else "Configuração não encontrada"
+        super().__init__(
+            message=message,
+            status_code=404,
+            error_code="SETTING_NOT_FOUND",
+            details={}
+        )
+
+class InvalidSettingValueException(BusinessException):
+    """Valor inválido para uma configuração."""
+
+    def __init__(self, key: str, reason: str = ""):
+        message = f"Valor inválido para \"{key}\"" + (f": {reason}" if reason else "")
+        super().__init__(
+            message=message,
+            status_code=422,
+            error_code="INVALID_SETTING_VALUE",
+            details={}
+        )
+
+
+class SettingReadOnlyException(BusinessException):
+    """Tentativa de alterar uma configuração somente leitura."""
+
+    def __init__(self, key: str):
+        super().__init__(
+            message=f"Configuração \"{key}\" é somente leitura",
+            status_code=403,
+            error_code="SETTING_READ_ONLY",
+            details={}
         )

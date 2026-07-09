@@ -17,7 +17,10 @@ from .exceptions import (
     FileTooLargeException,
     FileNotFoundException,
     FileCorruptedException,
-    StorageException
+    StorageException,
+    SettingReadOnlyException,
+    SettingsNotFoundException,
+    InvalidSettingValueException
 )
 
 from .handlers import (
@@ -46,5 +49,8 @@ __all__ = [
     "FileTooLargeException",
     "FileNotFoundException",
     "FileCorruptedException",
-    "StorageException"
+    "StorageException",
+    "SettingReadOnlyException",
+    "SettingsNotFoundException",
+    "InvalidSettingValueException",
 ]
