@@ -1,7 +1,7 @@
 from .api import router
 from .service import ToyService
 from .repository import ToyRepository
-from .models import ToyModel
+from .models import Toys
 from .schemas import (
     ToyCreate,
     ToyUpdate,
@@ -25,7 +25,7 @@ __all__ = [
     "router",
     "ToyService",
     "ToyRepository",
-    "ToyModel",
+    "Toys",
     "ToyCreate",
     "ToyUpdate",
     "ToyResponse",
