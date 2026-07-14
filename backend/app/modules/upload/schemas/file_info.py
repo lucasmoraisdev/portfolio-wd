@@ -1,5 +1,4 @@
 from pydantic import Field
-from uuid import UUID
 
 from app.modules.upload.schemas.base import UploadBase
 

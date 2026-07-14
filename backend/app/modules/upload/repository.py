@@ -6,8 +6,7 @@ from app.modules.upload.schemas import FileInfo
 
 from uuid import UUID, uuid4
 
-from sqlalchemy.orm import Session
-from sqlalchemy import select, delete
+from sqlalchemy import delete
 
 class UploadRepository:
     def __init__(self, db: Session):
