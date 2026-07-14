@@ -1,13 +1,11 @@
 import json
 from datetime import datetime, timezone
-from typing import Any, Sequence
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import uuid4
 
-from sqlalchemy import select, delete, Column, String, DateTime, Boolean
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
+from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 
-from app.shared.database import Base
 from .models import SettingModel
 
 class SettingsRepository:
