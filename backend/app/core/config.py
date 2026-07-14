@@ -46,7 +46,7 @@ class DatabaseSettings(BaseSettings):
     @classmethod
     def validate_url(cls, v: str) -> str:
         if not v:
-            raise ValueError(f"Database URL can not be empty")
+            raise ValueError("Database URL can not be empty")
         return v
     
 class JWTSettings(BaseSettings):

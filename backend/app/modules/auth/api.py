@@ -17,7 +17,6 @@ from app.modules.user.models import User
 from app.modules.user.repository import UserRepository
 from app.shared.database import get_db
 from app.shared.security.dependencies import get_current_user
-from app.shared.responses import api_response, ApiResponse, paginated_response
 
 router = APIRouter(
     prefix=AUTH_PREFIX,
