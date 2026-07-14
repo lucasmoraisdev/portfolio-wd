@@ -12,6 +12,10 @@ from app.modules.user.models import *
 from app.modules.upload.models import *
 from app.modules.settings.models import *
 from app.modules.toys.models import *
+from app.modules.events.models import *
+from app.modules.faq.models import *
+from app.modules.testimonials.models import *
+from app.modules.contacts.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
