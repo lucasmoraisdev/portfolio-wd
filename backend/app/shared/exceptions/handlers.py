@@ -8,7 +8,6 @@ Registra handlers para:
  - Exception genérica
 """
 
-import logging
 import traceback
 from typing import Any
 from app.core.logging import configure_logging

@@ -11,7 +11,6 @@ from functools import wraps
 from typing import Any, Callable, TypeVar
 
 from fastapi import Request
-from fastapi.responses import JSONResponse
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -89,7 +88,6 @@ def _wrap_result(
         http_method = request.method
 
     final_message = message or DEFAULT_MESSAGES.get(http_method, "Operação realizada com sucesso.")
-    final_status = status_code or (201 if http_method == "POST" else 200)
 
     return {
         "success": True,
@@ -131,7 +129,6 @@ class StandardResponseMiddleware:
             return
 
         # Intercepta a resposta
-        from starlette.responses import Response
         
         async def wrapped_send(message: Any) -> None:
             if message["type"] == "http.response.body":

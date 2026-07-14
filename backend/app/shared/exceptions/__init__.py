@@ -26,7 +26,15 @@ from .exceptions import (
     ToyNameAlreadyExistsException,
     ToyNotFoundException,
     ToySlugAlreadyExistsException,
-    InvalidAgeRangeException
+    InvalidAgeRangeException,
+    ContactException,
+    ContactMessageNotFoundException,
+    EventException,
+    EventNotFoundException,
+    FAQException,
+    FAQNotFoundException,
+    TestimonialException,
+    TestimonialNotFoundException,
 )
 
 from .handlers import (
@@ -65,4 +73,12 @@ __all__ = [
     "ToyNotFoundException",
     "ToySlugAlreadyExistsException",
     "InvalidAgeRangeException",
+    "ContactException",
+    "ContactMessageNotFoundException",
+    "EventException",
+    "EventNotFoundException",
+    "FAQException",
+    "FAQNotFoundException",
+    "TestimonialException",
+    "TestimonialNotFoundException",
 ]

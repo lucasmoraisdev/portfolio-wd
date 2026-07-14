@@ -107,10 +107,106 @@ class InvalidUserDataException(BusinessException):
         )
 # ────────── Módulo CMS ─────────────────────────────────────────────────────────────
 # ────────── Módulo Contacts ────────────────────────────────────────────────────────
+class ContactException(BusinessException):
+    """Base para exceções de contatos."""
+    def __init__(
+        self,
+        message: str = "Erro no contato",
+        status_code: int = 400,
+        error_code: str = "CONTACT_ERROR"
+    ):
+        super().__init__(
+            message=message,
+            status_code=status_code,
+            error_code=error_code
+        )
+
+class ContactMessageNotFoundException(ContactException):
+    """Mensagem de contato não encontrada."""
+    def __init__(self, message_id: str | None = None):
+        message = f"Mensagem de contato '{message_id}' não encontrada" if message_id else "Mensagem de contato não encontrada"
+        super().__init__(
+            message=message,
+            status_code=404,
+            error_code="CONTACT_NOT_FOUND"
+        )
+
 # ────────── Módulo Events ──────────────────────────────────────────────────────────
+class EventException(BusinessException):
+    """Base para exceções de eventos."""
+    def __init__(
+        self,
+        message: str = "Erro no evento",
+        status_code: int = 400,
+        error_code: str = "EVENT_ERROR"
+    ):
+        super().__init__(
+            message=message,
+            status_code=status_code,
+            error_code=error_code
+        )
+
+class EventNotFoundException(EventException):
+    """Evento não encontrado."""
+    def __init__(self, event_id: str | None = None):
+        message = f"Evento '{event_id}' não encontrado" if event_id else "Evento não encontrado"
+        super().__init__(
+            message=message,
+            status_code=404,
+            error_code="EVENT_NOT_FOUND"
+        )
+
 # ────────── Módulo FAQ ─────────────────────────────────────────────────────────────
+class FAQException(BusinessException):
+    """Base para exceções de FAQ."""
+    def __init__(
+        self,
+        message: str = "Erro no FAQ",
+        status_code: int = 400,
+        error_code: str = "FAQ_ERROR"
+    ):
+        super().__init__(
+            message=message,
+            status_code=status_code,
+            error_code=error_code
+        )
+
+class FAQNotFoundException(FAQException):
+    """FAQ não encontrado."""
+    def __init__(self, faq_id: str | None = None):
+        message = f"FAQ '{faq_id}' não encontrado" if faq_id else "FAQ não encontrado"
+        super().__init__(
+            message=message,
+            status_code=404,
+            error_code="FAQ_NOT_FOUND"
+        )
+
 # ────────── Módulo Team ────────────────────────────────────────────────────────────
 # ────────── Módulo Testimonials ────────────────────────────────────────────────────
+class TestimonialException(BusinessException):
+    """Base para exceções de depoimentos."""
+    def __init__(
+        self,
+        message: str = "Erro no depoimento",
+        status_code: int = 400,
+        error_code: str = "TESTIMONIAL_ERROR"
+    ):
+        super().__init__(
+            message=message,
+            status_code=status_code,
+            error_code=error_code
+        )
+
+class TestimonialNotFoundException(TestimonialException):
+    """Depoimento não encontrado."""
+    def __init__(self, testimonial_id: str | None = None):
+        message = f"Depoimento '{testimonial_id}' não encontrado" if testimonial_id else "Depoimento não encontrado"
+        super().__init__(
+            message=message,
+            status_code=404,
+            error_code="TESTIMONIAL_NOT_FOUND"
+        )
+
 # ────────── Módulo Toys ────────────────────────────────────────────────────────────
 class ToyException(BusinessException):
     """Base para exceções de brinquedos."""
@@ -138,7 +234,7 @@ class ToyNotFoundException(ToyException):
         elif toy_id:
             message = f"Brinquedo \"{toy_id}\" não encontrado"
         else:
-            message = f"Brinquedo não encontrado"
+            message = "Brinquedo não encontrado"
         super().__init__(
             message=message,
             status_code=self.status_code,
