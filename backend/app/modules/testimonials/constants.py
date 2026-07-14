@@ -1,0 +1,6 @@
+TESTIMONIALS_PREFIX = "/testimonials"
+TESTIMONIALS_TAG = "Testimonials"
+TESTIMONIALS_TABLE_NAME = "testimonials"
+
+DEFAULT_IS_ACTIVE = True
+DEFAULT_ORDER = 0
