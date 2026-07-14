@@ -1,0 +1,6 @@
+FAQ_PREFIX = "/faq"
+FAQ_TAG = "FAQ"
+FAQ_TABLE_NAME = "faqs"
+
+DEFAULT_IS_ACTIVE = True
+DEFAULT_ORDER = 0
