@@ -35,7 +35,6 @@ class ToyRepository:
             .options(joinedload(Toys.cover_image))
             .where(
                 Toys.slug == slug,
-                Toys.deleted_at.is_(None),
             )
         )
         return self._db.execute(stmt).scalar_one_or_none()
@@ -44,7 +43,6 @@ class ToyRepository:
         """Busca um brinquedo pelo nome (case-insensitive)."""
         stmt = select(Toys).where(
             func.lower(Toys.name) == func.lower(name),
-            Toys.deleted_at.is_(None),
         )
         return self._db.execute(stmt).scalar_one_or_none()
 
@@ -53,7 +51,6 @@ class ToyRepository:
         stmt = select(Toys).where(
             Toys.slug == slug,
             Toys.id != exclude_id,
-            Toys.deleted_at.is_(None),
         )
         return self._db.execute(stmt).scalar_one_or_none()
 
@@ -72,7 +69,7 @@ class ToyRepository:
         filters = filters or ToyFilter()
 
         # Query base
-        stmt = select(Toys).where(Toys.deleted_at.is_(None))
+        stmt = select(Toys)
 
         # Aplicar filtros
         if filters.search:
@@ -117,9 +114,8 @@ class ToyRepository:
         stmt = (
             select(Toys)
             .where(
-                Toys.is_featured == True,
-                Toys.is_active == True,
-                Toys.deleted_at.is_(None),
+                Toys.is_featured,
+                Toys.is_active,
             )
             .order_by(Toys.display_order.asc())
             .limit(limit)
@@ -130,7 +126,6 @@ class ToyRepository:
         """Lista todas as categorias distintas."""
         stmt = (
             select(Toys.category)
-            .where(Toys.deleted_at.is_(None))
             .distinct()
             .order_by(Toys.category)
         )
@@ -156,8 +151,15 @@ class ToyRepository:
         """Verifica se um slug já existe."""
         stmt = select(Toys).where(
             Toys.slug == slug,
-            Toys.deleted_at.is_(None),
         )
         if exclude_id:
             stmt = stmt.where(Toys.id != exclude_id)
         return self._db.execute(stmt).scalar_one_or_none() is not None
+
+    def resolve_image_urls(self, image_ids: list[UUID]) -> list[str]:
+        """Busca urls públicas a partir de uma lista de IDs de upload."""
+        if not image_ids:
+            return []
+        from app.modules.upload.models import Upload
+        stmt = select(Upload.public_url).where(Upload.id.in_(image_ids))
+        return list(self._db.execute(stmt).scalars().all())

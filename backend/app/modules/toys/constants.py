@@ -1,4 +1,4 @@
-TOYS_PREFIX = "/toysy"
+TOYS_PREFIX = "/toys"
 TOYS_TAG = "Toys"
 TOYS_TABLE_NAME = "toys"
 

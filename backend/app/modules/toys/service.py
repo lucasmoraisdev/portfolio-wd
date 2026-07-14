@@ -2,7 +2,6 @@ import logging
 import re
 from uuid import UUID
 
-from sqlalchemy.orm import Session
 
 from app.modules.toys.models import Toys
 from app.modules.toys.repository import ToyRepository
@@ -18,9 +17,7 @@ from app.modules.toys.schemas import (
 )
 from app.shared.exceptions import (
     ToyNotFoundException,
-    ToySlugAlreadyExistsException,
     ToyNameAlreadyExistsException,
-    InvalidAgeRangeException,
 )
 
 logger = logging.getLogger(__name__)
@@ -72,7 +69,7 @@ class ToyService:
     def _get_toy_or_raise(self, toy_id: UUID) -> Toys:
         """Busca um brinquedo ou lança exceção."""
         toy = self.repository.get_by_id(toy_id)
-        if not toy or toy.deleted_at:
+        if not toy:
             raise ToyNotFoundException(str(toy_id))
         return toy
 
@@ -83,6 +80,8 @@ class ToyService:
             cover_url = toy.cover_image.public_url
 
         gallery_urls = []
+        if toy.gallery_image_ids:
+            gallery_urls = self.repository.resolve_image_urls(toy.gallery_image_ids)
 
         return ToyPublicResponse(
             id=toy.id,
@@ -199,9 +198,9 @@ class ToyService:
         return ToyResponse.model_validate(updated)
 
     def delete(self, toy_id: UUID) -> bool:
-        """Remove um brinquedo (soft delete)."""
-        toy = self._get_toy_or_raise(toy_id)
-        result = self.repository.soft_delete(toy_id)
+        """Remove um brinquedo (hard delete)."""
+        self._get_toy_or_raise(toy_id)
+        result = self.repository.delete(toy_id)
         if result:
             logger.info("Brinquedo removido: %s", toy_id)
         return result
