@@ -36,7 +36,7 @@ class UserService:
         
         return user
     
-    def get_by_id(self, email: str) -> User:
+    def get_by_email(self, email: str) -> User:
         user = self._repository.get_by_email(email)
 
         if user is None:
