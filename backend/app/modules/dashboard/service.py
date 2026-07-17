@@ -31,7 +31,7 @@ class DashboardService:
 
         # Count Contacts
         total_contacts = self.db.execute(select(func.count(ContactMessage.id))).scalar() or 0
-        unread_contacts = self.db.execute(select(func.count(ContactMessage.id)).where(not ContactMessage.is_read)).scalar() or 0
+        unread_contacts = self.db.execute(select(func.count(ContactMessage.id)).where(ContactMessage.is_read == False)).scalar() or 0
 
         return DashboardStatsResponse(
             total_toys=total_toys,

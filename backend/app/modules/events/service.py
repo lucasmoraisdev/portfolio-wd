@@ -13,7 +13,7 @@ from app.modules.events.schemas import (
     EventFeaturedResponse,
     EventPositionResponse,
 )
-from app.shared.exceptions import EventNotFoundException
+from app.shared.exceptions import EventNotFoundException, EventDisplayOrderAlreadyExistsException
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,10 @@ class EventService:
         return event
 
     def _to_public_response(self, event: Events) -> EventPublicResponse:
-        cover_url = event.cover_image.public_url if event.cover_image else None
+        cover_url = None
+        if event.cover_image_id:
+            from app.core.config import settings
+            cover_url = f"{settings.app.base_url}{settings.app.api_prefix}/uploads/{event.cover_image_id}/file"
         gallery_urls = []
         if event.gallery_image_ids:
             gallery_urls = self.repository.resolve_image_urls(event.gallery_image_ids)
@@ -44,7 +47,40 @@ class EventService:
             gallery_image_urls=gallery_urls,
         )
 
+    def _to_admin_response(self, event: Events) -> EventResponse:
+        cover_url = None
+        if event.cover_image_id:
+            from app.core.config import settings
+            cover_url = f"{settings.app.base_url}{settings.app.api_prefix}/uploads/{event.cover_image_id}/file"
+        gallery_urls = []
+        if event.gallery_image_ids:
+            gallery_urls = self.repository.resolve_image_urls(event.gallery_image_ids)
+
+        return EventResponse(
+            id=event.id,
+            title=event.title,
+            city=event.city,
+            client=event.client,
+            event_date=event.event_date,
+            description=event.description,
+            is_featured=event.is_featured,
+            is_active=event.is_active,
+            display_order=event.display_order,
+            cover_image_id=event.cover_image_id,
+            gallery_image_ids=event.gallery_image_ids,
+            created_at=event.created_at,
+            updated_at=event.updated_at,
+            cover_image_url=cover_url,
+            gallery_urls=gallery_urls,
+        )
+
     def create(self, data: EventCreate) -> EventResponse:
+        # Check display order duplicate
+        if data.display_order is not None:
+            existing = self.repository.get_by_display_order(data.display_order)
+            if existing:
+                raise EventDisplayOrderAlreadyExistsException(data.display_order)
+
         event = Events(
             title=data.title,
             city=data.city,
@@ -59,15 +95,15 @@ class EventService:
         )
         created = self.repository.create(event)
         logger.info("Evento criado: %s", created.title)
-        return EventResponse.model_validate(created)
+        return self._to_admin_response(created)
 
     def get_by_id(self, event_id: UUID) -> EventResponse:
         event = self._get_event_or_raise(event_id)
-        return EventResponse.model_validate(event)
+        return self._to_admin_response(event)
 
     def list_admin(self, filters: EventFilter) -> tuple[list[EventResponse], int]:
         items, total = self.repository.list_all(filters)
-        responses = [EventResponse.model_validate(x) for x in items]
+        responses = [self._to_admin_response(x) for x in items]
         return responses, total
 
     def list_public(self, filters: EventFilter) -> tuple[list[EventPublicResponse], int]:
@@ -83,6 +119,12 @@ class EventService:
     def update(self, event_id: UUID, data: EventUpdate) -> EventResponse:
         event = self._get_event_or_raise(event_id)
 
+        # Check display order duplicate
+        if data.display_order is not None:
+            existing = self.repository.get_by_display_order(data.display_order)
+            if existing and existing.id != event_id:
+                raise EventDisplayOrderAlreadyExistsException(data.display_order)
+
         update_fields = [
             "title", "city", "client", "event_date", "description",
             "is_featured", "is_active", "display_order",
@@ -96,7 +138,7 @@ class EventService:
 
         updated = self.repository.update(event)
         logger.info("Evento atualizado: %s", updated.id)
-        return EventResponse.model_validate(updated)
+        return self._to_admin_response(updated)
 
     def delete(self, event_id: UUID) -> bool:
         self._get_event_or_raise(event_id)

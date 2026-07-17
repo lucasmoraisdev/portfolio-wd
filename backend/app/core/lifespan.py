@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlalchemy import text
 
-from app.core.config import settings
+from app.core.config import settings, get_settings
 from app.core.logging import configure_logging
 from app.shared.database.session import engine
 from structlog import get_logger
@@ -18,7 +18,9 @@ async def lifespan(app: FastAPI):
         "Starting application",
         app_name=settings.app.name,
         version=settings.app.version,
-        environment=settings.app.env
+        environment=settings.app.env,
+        api_prefix=settings.app.api_prefix,
+        settings=f"{get_settings()}"
     )
 
     try:

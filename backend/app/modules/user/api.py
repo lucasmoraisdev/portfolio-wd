@@ -30,7 +30,7 @@ def get_user_service(
 # ─── LISTAR USUÁRIOS ─────────────────────────────────────────────
 @router.get(
     "",
-    response_model=UserApiResponse[dict]
+    response_model=UserApiResponse
 )
 @api_response(message="Users listed successfully")
 def list_users(
@@ -62,7 +62,7 @@ def list_users(
 # ─── OBTER USUÁRIO POR ID ────────────────────────────────────────
 @router.get(
     "/{user_id}",
-    response_model=UserApiResponse[UserResponse]
+    response_model=UserApiResponse
 )
 def get_user(
     user_id: UUID,
@@ -73,7 +73,7 @@ def get_user(
 # ─── CRIAR USUÁRIO ───────────────────────────────────────────────
 @router.post(
     "",
-    response_model=UserApiResponse[UserResponse],
+    response_model=UserApiResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def create_user(
@@ -85,7 +85,7 @@ def create_user(
 # ─── ATUALIZAR USUÁRIO ───────────────────────────────────────────────
 @router.patch(
     "/{user_id}",
-    response_model=UserApiResponse[UserResponse],
+    response_model=UserApiResponse,
 )
 def update_user(
     user_id: UUID,
@@ -98,7 +98,7 @@ def update_user(
 @router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    response_model=ApiResponse[None]
+    response_model=None
 )
 def delete_user(
     user_id: UUID,

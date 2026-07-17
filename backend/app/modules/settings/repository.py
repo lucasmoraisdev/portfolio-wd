@@ -14,7 +14,7 @@ class SettingsRepository:
 
     def get_by_key(self, key: str) -> SettingModel | None:
         stmt = select(SettingModel).where(SettingModel.key == key)
-        return self._db.execute(stmt).scalar_one_or_none
+        return self._db.execute(stmt).scalar_one_or_none()
     
     def list_all(self, limit: int = 100, offset: int = 0) -> list[SettingModel]:
         stmt = (

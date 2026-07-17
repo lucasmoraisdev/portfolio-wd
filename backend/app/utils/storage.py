@@ -163,7 +163,7 @@ class LocalStorageBackend(StorageBackend):
     
     def get_public_url(self, file_path):
         """Retorna a URL pública"""
-        return f"/static/uploads/{file_path}"
+        return f"{settings.app.base_url}/uploads/{file_path}"
     
     def get_full_path(self, file_path):
         return self.base_dir / file_path

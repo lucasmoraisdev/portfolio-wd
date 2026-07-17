@@ -16,9 +16,10 @@ from app.shared.exceptions import (
     UserInactiveException,
     UserNotFoundException
 )
+from app.core.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/auth/login",
+    tokenUrl=f"{settings.app.api_prefix}/auth/token",
 )
 
 def get_current_user(

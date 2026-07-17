@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.modules.toys.models import Toys
 from app.modules.toys.schemas import ToyFilter
 
+from app.modules.upload.models import Upload
 
 class ToyRepository:
     def __init__(self, db: Session) -> None:
@@ -160,6 +161,11 @@ class ToyRepository:
         """Busca urls públicas a partir de uma lista de IDs de upload."""
         if not image_ids:
             return []
-        from app.modules.upload.models import Upload
-        stmt = select(Upload.public_url).where(Upload.id.in_(image_ids))
-        return list(self._db.execute(stmt).scalars().all())
+        stmt = select(Upload.id).where(Upload.id.in_(image_ids))
+        existing_ids = set(self._db.execute(stmt).scalars().all())
+        from app.core.config import settings
+        return [
+            f"{settings.app.base_url}{settings.app.api_prefix}/uploads/{image_id}/file"
+            for image_id in image_ids
+            if image_id in existing_ids
+        ]

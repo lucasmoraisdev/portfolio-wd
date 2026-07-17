@@ -9,6 +9,7 @@ from fastapi import UploadFile
 from app.core.config import settings
 from app.modules.upload.constants import (
     ALLOWED_IMAGE_EXTENSIONS,
+    ALLOWED_ALL_EXTENSIONS,
     DIRECTORY_STRUCTURE,
     FILENAME_FORMAT
 )
@@ -92,13 +93,22 @@ class UploadService:
         Returns:
             UploadResponse do arquivo removido.
         """
+        # Fetch the upload record first (if it exists)
         upload = self.repository.get_by_id(upload_id)
+
+        # Execute repository delete to unconditionally clean up references in Events/Toys
+        self.repository.delete(upload_id)
+
+        # If it didn't exist in the database, raise the exception after cleaning up the event/toy references
         if not upload:
             raise FileNotFoundException(str(upload_id))
-        
-        await self.storage.delete(upload.file_path)
 
-        self.repository.soft_delete(upload_id)
+        # Deleta do storage e relança exceção se o arquivo físico não for encontrado
+        try:
+            await self.storage.delete(upload.file_path)
+        except FileNotFoundException as exc:
+            logger.warning("Arquivo físico não encontrado durante a exclusão do storage: %s", upload.file_path)
+            raise exc
 
         logger.info("Upload removido: %s", upload.stored_filename)
 
@@ -130,10 +140,10 @@ class UploadService:
             raise FileCorruptedException("Nome do arquivo não fornecido")
         
         extension = self._get_extension(file.filename)
-        if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        if extension not in ALLOWED_ALL_EXTENSIONS:
             raise InvalidFileExtensionException(
                 extension=extension,
-                allowed=ALLOWED_IMAGE_EXTENSIONS
+                allowed=ALLOWED_ALL_EXTENSIONS
             )
         
         max_upload_size = settings.storage.max_upload_size
@@ -143,7 +153,7 @@ class UploadService:
             else max_upload_size
         )
 
-        self._validate_file(file, max_size)
+        self._validate_size(file, max_size)
     
     def _validate_size(self, file: UploadFile, max_size: int) -> None:
         """
@@ -188,14 +198,15 @@ class UploadService:
             year=now.year,
             month=f"{now.month:02d}",            
         ) + f"/{stored_filename}"
-
+        print(f"FILE INFO DATA: ORIGINAL FILENAME: {original_filename} | STORED FILENAME: {stored_filename} | FILE PATH: {file_path} | FULL PATH: {str(self.storage.get_full_path(file_path))} | FILE SIZE: {0} | MIME TYPE: {mime_type}")
         return FileInfo(
             original_filename=original_filename,
             stored_filename=stored_filename,
             file_path=file_path,
             full_path=str(self.storage.get_full_path(file_path)),
             file_size=0,
-            mime_type=mime_type
+            mime_type=mime_type,
+            extension=extension
         )
     
     @staticmethod

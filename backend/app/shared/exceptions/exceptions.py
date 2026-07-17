@@ -156,6 +156,15 @@ class EventNotFoundException(EventException):
             error_code="EVENT_NOT_FOUND"
         )
 
+class EventDisplayOrderAlreadyExistsException(EventException):
+    """Ordem de exibição do evento já existe."""
+    def __init__(self, display_order: int):
+        super().__init__(
+            message=f"Ordem de exibição {display_order} já está em uso por outro evento.",
+            status_code=409,
+            error_code="EVENT_DISPLAY_ORDER_CONFLICT"
+        )
+
 # ────────── Módulo FAQ ─────────────────────────────────────────────────────────────
 class FAQException(BusinessException):
     """Base para exceções de FAQ."""
@@ -237,7 +246,7 @@ class ToyNotFoundException(ToyException):
             message = "Brinquedo não encontrado"
         super().__init__(
             message=message,
-            status_code=self.status_code,
+            status_code=404,
             error_code="TOY_NOT_FOUND"
         )
 
@@ -246,7 +255,7 @@ class ToySlugAlreadyExistsException(ToyException):
     def __init__(self, slug: str | None = None):
         super().__init__(
             message=f"Slug \"{slug}\" já em uso",
-            status_code=self.status_code,
+            status_code=409,
             error_code="TOY_SLUG_EXISTS"
         )
 
@@ -255,7 +264,7 @@ class ToyNameAlreadyExistsException(ToyException):
     def __init__(self, name: str | None = None):
         super().__init__(
             message=f"Brinquedo \"{name}\" já em uso",
-            status_code=self.status_code,
+            status_code=409,
             error_code="TOY_NAME_EXISTS"
         )
 

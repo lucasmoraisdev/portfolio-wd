@@ -20,6 +20,7 @@ class AppSettings(BaseSettings):
     debug: bool = Field(env="DEBUG", default=False)
     api_prefix: str = Field(default="/api/v1")
     log_level: str = Field(default="INFO")
+    base_url: str = Field(default="http://127.0.0.1:8000")
 
     @field_validator("env")
     @classmethod
@@ -108,6 +109,12 @@ class CORSSettings(BaseSettings):
     @classmethod
     def parse_origins(cls, v: Any) -> list[str]:
         if isinstance(v, str):
+            import json
+            if v.startswith("[") and v.endswith("]"):
+                try:
+                    return json.loads(v)
+                except json.JSONDecodeError:
+                    pass
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         elif isinstance(v, list):
             return v

@@ -27,7 +27,10 @@ class TestimonialService:
         return testimonial
 
     def _to_public_response(self, testimonial: Testimonials) -> TestimonialPublicResponse:
-        photo_url = testimonial.photo.public_url if testimonial.photo else None
+        photo_url = None
+        if testimonial.photo_id:
+            from app.core.config import settings
+            photo_url = f"{settings.app.base_url}{settings.app.api_prefix}/uploads/{testimonial.photo_id}/file"
         return TestimonialPublicResponse(
             id=testimonial.id,
             name=testimonial.name,

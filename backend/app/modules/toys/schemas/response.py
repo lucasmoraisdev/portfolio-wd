@@ -23,6 +23,8 @@ class ToyResponse(BaseModel):
     display_order: int
     cover_image_id: UUID | None
     gallery_image_ids: list[UUID]
+    cover_image_url: str | None = None
+    gallery_urls: list[str] = []
     video_url: str | None
     video_type: str | None
     created_at: datetime

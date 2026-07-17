@@ -50,6 +50,8 @@ class EventResponse(EventBase):
     display_order: int
     cover_image_id: UUID | None
     gallery_image_ids: list[UUID]
+    cover_image_url: str | None = None
+    gallery_urls: list[str] = []
     created_at: datetime
     updated_at: datetime
 

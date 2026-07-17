@@ -37,8 +37,10 @@ class AuthService:
             raise InvalidCredentialsException()
         
         token = create_access_token(
-            subect=str(user.id)
+            subject=str(user.id)
         )
+        print(f"User: {user.id}")
+        print(f"Token: {token}")
 
         return TokenResponse(
             access_token=token

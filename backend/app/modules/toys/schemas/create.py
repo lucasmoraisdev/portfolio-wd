@@ -42,13 +42,13 @@ class ToyCreate(BaseModel):
 
     min_age: int = Field(
         default=0,
-        le=MIN_AGE,
+        ge=0,
         description="Idade mínima recomendada",
     )
 
     max_age: int = Field(
         default=18,
-        ge=MAX_AGE,
+        ge=1,
         description="Idade máxima recomendada",
     )
 

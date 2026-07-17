@@ -18,6 +18,16 @@ ALLOWED_IMAGE_EXTENSIONS: set[str] = {
     "ico"
 }
 
+ALLOWED_VIDEO_EXTENSIONS: set[str] = {
+    "mp4",
+    "webm",
+    "ogg",
+    "mov",
+    "avi"
+}
+
+ALLOWED_ALL_EXTENSIONS: set[str] = ALLOWED_IMAGE_EXTENSIONS.union(ALLOWED_VIDEO_EXTENSIONS)
+
 MAX_FILE_SIZE_BYTES = settings.storage.max_upload_size
 MAX_IMAGE_SIZE_BYTES = min(MAX_FILE_SIZE_BYTES, 5 * 1024 * 1024)
 

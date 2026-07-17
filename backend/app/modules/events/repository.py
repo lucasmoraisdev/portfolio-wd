@@ -26,6 +26,10 @@ class EventRepository:
         )
         return self._db.execute(stmt).scalar_one_or_none()
 
+    def get_by_display_order(self, display_order: int) -> Events | None:
+        stmt = select(Events).where(Events.display_order == display_order)
+        return self._db.execute(stmt).scalars().first()
+
     def list_all(
         self,
         filters: EventFilter | None = None,
@@ -96,5 +100,11 @@ class EventRepository:
     def resolve_image_urls(self, image_ids: list[UUID]) -> list[str]:
         if not image_ids:
             return []
-        stmt = select(Upload.public_url).where(Upload.id.in_(image_ids))
-        return list(self._db.execute(stmt).scalars().all())
+        stmt = select(Upload.id).where(Upload.id.in_(image_ids))
+        existing_ids = set(self._db.execute(stmt).scalars().all())
+        from app.core.config import settings
+        return [
+            f"{settings.app.base_url}{settings.app.api_prefix}/uploads/{image_id}/file"
+            for image_id in image_ids
+            if image_id in existing_ids
+        ]

@@ -57,7 +57,7 @@ def get_toy_service(
 # Publicos
 
 @router.get(
-    "/public/toys",
+    "/public",
     response_model=ApiResponse[dict],
 )
 @api_response(message="Brinquedos listados com sucesso.")

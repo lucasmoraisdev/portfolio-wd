@@ -58,6 +58,7 @@ class SettingKeys:
     COMPANY_FOUNDING_YEAR = "company_founding_year"
 
     # Hero
+    HERO_TAG = "hero_tag"
     HERO_TITLE = "hero_title"
     HERO_SUBTITLE = "hero_subtitle"
     HERO_TEXT = "hero_text"
@@ -69,6 +70,8 @@ class SettingKeys:
     HERO_BACKGROUND_VIDEO = "hero_background_video"
     HERO_CAROUSEL_IMAGES = "hero_carousel_images"
     HERO_CAROUSEL_TRANSITION = "hero_carousel_transition"
+    HERO_SAFETY_CARDS = "hero_safety_cards"
+    HERO_BG_COLOR = "hero_bg_color"
 
     # Contato
     CONTACT_PHONE_PRIMARY = "contact_phone_primary"

@@ -76,8 +76,9 @@ class ToyService:
     def _to_public_response(self, toy: Toys) -> ToyPublicResponse:
         """Converte Toys para resposta pública."""
         cover_url = None
-        if toy.cover_image:
-            cover_url = toy.cover_image.public_url
+        if toy.cover_image_id:
+            from app.core.config import settings
+            cover_url = f"{settings.app.base_url}{settings.app.api_prefix}/uploads/{toy.cover_image_id}/file"
 
         gallery_urls = []
         if toy.gallery_image_ids:
@@ -95,6 +96,39 @@ class ToyService:
             cover_image_url=cover_url,
             gallery_image_urls=gallery_urls,
             video_url=toy.video_url,
+        )
+
+    def _to_admin_response(self, toy: Toys) -> ToyResponse:
+        """Converte Toys para resposta administrativa com URLs de imagens."""
+        cover_url = None
+        if toy.cover_image_id:
+            from app.core.config import settings
+            cover_url = f"{settings.app.base_url}{settings.app.api_prefix}/uploads/{toy.cover_image_id}/file"
+        gallery_urls = []
+        if toy.gallery_image_ids:
+            gallery_urls = self.repository.resolve_image_urls(toy.gallery_image_ids)
+
+        return ToyResponse(
+            id=toy.id,
+            name=toy.name,
+            slug=toy.slug,
+            category=toy.category,
+            short_description=toy.short_description,
+            full_description=toy.full_description,
+            min_age=toy.min_age,
+            max_age=toy.max_age,
+            capacity=toy.capacity,
+            is_featured=toy.is_featured,
+            is_active=toy.is_active,
+            display_order=toy.display_order,
+            cover_image_id=toy.cover_image_id,
+            gallery_image_ids=toy.gallery_image_ids,
+            video_url=toy.video_url,
+            video_type=toy.video_type,
+            created_at=toy.created_at,
+            updated_at=toy.updated_at,
+            cover_image_url=cover_url,
+            gallery_urls=gallery_urls,
         )
 
     def create(self, data: ToyCreate) -> ToyResponse:
@@ -128,12 +162,12 @@ class ToyService:
 
         created = self.repository.create(toy)
         logger.info("Brinquedo criado: %s (slug: %s)", created.name, created.slug)
-        return ToyResponse.model_validate(created)
+        return self._to_admin_response(created)
 
     def get_by_id(self, toy_id: UUID) -> ToyResponse:
         """Busca um brinquedo pelo ID."""
         toy = self._get_toy_or_raise(toy_id)
-        return ToyResponse.model_validate(toy)
+        return self._to_admin_response(toy)
 
     def get_by_slug(self, slug: str) -> ToyPublicResponse:
         """Busca um brinquedo público pelo slug."""
@@ -145,7 +179,7 @@ class ToyService:
     def list_admin(self, filters: ToyFilter) -> tuple[list[ToyResponse], int]:
         """Lista brinquedos para administração."""
         items, total = self.repository.list_all(filters)
-        responses = [ToyResponse.model_validate(t) for t in items]
+        responses = [self._to_admin_response(t) for t in items]
         return responses, total
 
     def list_public(self, filters: ToyFilter) -> tuple[list[ToyPublicResponse], int]:
@@ -195,7 +229,7 @@ class ToyService:
 
         updated = self.repository.update(toy)
         logger.info("Brinquedo atualizado: %s", updated.id)
-        return ToyResponse.model_validate(updated)
+        return self._to_admin_response(updated)
 
     def delete(self, toy_id: UUID) -> bool:
         """Remove um brinquedo (hard delete)."""

@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.lifespan import lifespan
 from structlog import get_logger
@@ -25,23 +27,40 @@ app = FastAPI(
     title=settings.app.name,
     version=settings.app.version,
     lifespan=lifespan,
+    docs_url=f"{settings.app.api_prefix}/docs",
+    redoc_url=f"{settings.app.api_prefix}/redoc",
+    openapi_url=f"{settings.app.api_prefix}/openapi.json",
 )
 
 logger = get_logger(__name__)
 register_exception_handlers(app)
 
-# Register routers on FastAPI app instance
-app.include_router(auth_router)
-app.include_router(user_router)
-app.include_router(toys_router)
-app.include_router(settings_router)
-app.include_router(events_router)
-app.include_router(testimonials_router)
-app.include_router(faq_router)
-app.include_router(contacts_router)
-app.include_router(hero_router)
-app.include_router(dashboard_router)
-app.include_router(upload_router)
+# Configure CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors.origin,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Register routers on FastAPI app instance under the api_prefix
+app.include_router(auth_router, prefix=settings.app.api_prefix)
+app.include_router(user_router, prefix=settings.app.api_prefix)
+app.include_router(toys_router, prefix=settings.app.api_prefix)
+app.include_router(settings_router, prefix=settings.app.api_prefix)
+app.include_router(events_router, prefix=settings.app.api_prefix)
+app.include_router(testimonials_router, prefix=settings.app.api_prefix)
+app.include_router(faq_router, prefix=settings.app.api_prefix)
+app.include_router(contacts_router, prefix=settings.app.api_prefix)
+app.include_router(hero_router, prefix=settings.app.api_prefix)
+app.include_router(dashboard_router, prefix=settings.app.api_prefix)
+app.include_router(upload_router, prefix=settings.app.api_prefix)
+
+# Mount static files to serve uploads
+app.mount("/static/uploads", StaticFiles(directory=settings.storage.upload_directory), name="uploads")
+
 @app.get("/health")
 async def health_check():
     logger.info("Health check endpoint called")

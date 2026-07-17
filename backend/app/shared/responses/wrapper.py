@@ -131,6 +131,7 @@ class StandardResponseMiddleware:
         # Intercepta a resposta
         
         async def wrapped_send(message: Any) -> None:
+            print("MIddleware chamado")
             if message["type"] == "http.response.body":
                 body = message.get("body", b"")
                 if body:

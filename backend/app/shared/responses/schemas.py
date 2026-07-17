@@ -4,12 +4,13 @@ Schemas Pydantic para respostas padronizadas da API.
 
 from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
+from pydantic.generics import GenericModel
 
 T = TypeVar("T")
 
 
-class ApiResponse(BaseModel, Generic[T]):
+class ApiResponse(GenericModel, Generic[T]):
     """
     Schema base para todas as respostas da API.
     
@@ -32,7 +33,7 @@ class ApiResponse(BaseModel, Generic[T]):
     data: T | None = None
 
 
-class ApiErrorResponse(BaseModel):
+class ApiErrorResponse(GenericModel):
     """Schema para respostas de erro (já coberto pelo handler global)."""
     success: bool = False
     error: dict[str, Any]

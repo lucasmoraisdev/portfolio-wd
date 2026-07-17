@@ -17,6 +17,7 @@ class HeroService:
 
     def get_hero(self) -> HeroResponse:
         return HeroResponse(
+            tag=self._get_val(SettingKeys.HERO_TAG),
             title=self._get_val(SettingKeys.HERO_TITLE),
             subtitle=self._get_val(SettingKeys.HERO_SUBTITLE),
             text=self._get_val(SettingKeys.HERO_TEXT),
@@ -28,10 +29,13 @@ class HeroService:
             background_video=self._get_val(SettingKeys.HERO_BACKGROUND_VIDEO),
             carousel_images=self._get_val(SettingKeys.HERO_CAROUSEL_IMAGES, []),
             carousel_transition=self._get_val(SettingKeys.HERO_CAROUSEL_TRANSITION, 5),
+            safety_cards=self._get_val(SettingKeys.HERO_SAFETY_CARDS, []),
+            bg_color=self._get_val(SettingKeys.HERO_BG_COLOR),
         )
 
     def update_hero(self, data: HeroUpdate) -> HeroResponse:
         key_mappings = [
+            (SettingKeys.HERO_TAG, "tag", "string"),
             (SettingKeys.HERO_TITLE, "title", "string"),
             (SettingKeys.HERO_SUBTITLE, "subtitle", "string"),
             (SettingKeys.HERO_TEXT, "text", "string"),
@@ -43,6 +47,8 @@ class HeroService:
             (SettingKeys.HERO_BACKGROUND_VIDEO, "background_video", "string"),
             (SettingKeys.HERO_CAROUSEL_IMAGES, "carousel_images", "json"),
             (SettingKeys.HERO_CAROUSEL_TRANSITION, "carousel_transition", "integer"),
+            (SettingKeys.HERO_SAFETY_CARDS, "safety_cards", "json"),
+            (SettingKeys.HERO_BG_COLOR, "bg_color", "string"),
         ]
 
         for setting_key, schema_attr, val_type in key_mappings:

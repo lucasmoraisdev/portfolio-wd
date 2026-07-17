@@ -97,6 +97,7 @@ class SettingsService:
 
     def _build_hero(self) -> dict[str, Any]:
         return {
+            "tag": self._get_value(SettingKeys.HERO_TAG),
             "title": self._get_value(SettingKeys.HERO_TITLE),
             "subtitle": self._get_value(SettingKeys.HERO_SUBTITLE),
             "text": self._get_value(SettingKeys.HERO_TEXT),
@@ -108,6 +109,8 @@ class SettingsService:
             "background_video": self._get_value(SettingKeys.HERO_BACKGROUND_VIDEO),
             "carousel_images": self._get_value(SettingKeys.HERO_CAROUSEL_IMAGES, []),
             "carousel_transition": self._get_value(SettingKeys.HERO_CAROUSEL_TRANSITION, 5),
+            "safety_cards": self._get_value(SettingKeys.HERO_SAFETY_CARDS, []),
+            "bg_color": self._get_value(SettingKeys.HERO_BG_COLOR),
         }
     
     def _build_contact(self) -> dict[str, Any]:
@@ -258,17 +261,17 @@ class SettingsService:
 
     def update_settings(self, settings: dict[str, Any]) -> list[SettingResponse]:
         """Atualiza múltiplas configurações de uma vez."""
-        models = self.repository.bulk_update(settings)
+        models = self._repository.bulk_update(settings)
         return [SettingResponse.model_validate(m) for m in models]
 
     def update_single(self, key: str, value: Any) -> SettingResponse:
         """Atualiza uma configuração individual."""
-        type_ = self.repository._infer_type(value)
+        type_ = self._repository._infer_type(value)
         is_public = key.startswith((
             "company_", "hero_", "contact_", "social_",
             "seo_", "theme_", "footer_", "upload_",
         ))
-        model = self.repository.create_or_update(key, value, type_, is_public)
+        model = self._repository.create_or_update(key, value, type_, is_public)
         return SettingResponse.model_validate(model)
 
     # ─── Uploads relacionados ─────────────────────────────────────
@@ -279,10 +282,10 @@ class SettingsService:
         logo_type: str = "main",
     ) -> SettingResponse:
         """Faz upload de um logo e atualiza a referência."""
-        if not self.upload_service:
+        if not self._upload_service:
             raise RuntimeError("UploadService não configurado")
 
-        upload = await self.upload_service.upload(file, file_type="logos")
+        upload = await self._upload_service.upload(file, file_type="logos")
 
         key_map = {
             "main": SettingKeys.UPLOAD_LOGO_MAIN,
@@ -295,10 +298,10 @@ class SettingsService:
 
     async def upload_favicon(self, file: UploadFile) -> SettingResponse:
         """Faz upload do favicon."""
-        if not self.upload_service:
+        if not self._upload_service:
             raise RuntimeError("UploadService não configurado")
 
-        upload = await self.upload_service.upload(file, file_type="favicons")
+        upload = await self._upload_service.upload(file, file_type="favicons")
         return self._set_value(
             SettingKeys.UPLOAD_FAVICON,
             upload.public_url,
@@ -308,10 +311,10 @@ class SettingsService:
 
     async def upload_banner(self, file: UploadFile) -> SettingResponse:
         """Faz upload de um banner (hero background ou share)."""
-        if not self.upload_service:
+        if not self._upload_service:
             raise RuntimeError("UploadService não configurado")
 
-        upload = await self.upload_service.upload(file, file_type="banners")
+        upload = await self._upload_service.upload(file, file_type="banners")
 
         # Adiciona à lista de banners do hero
         banners = self._get_value(SettingKeys.HERO_CAROUSEL_IMAGES, [])
@@ -320,7 +323,7 @@ class SettingsService:
             self._set_value(SettingKeys.HERO_CAROUSEL_IMAGES, banners, "json", is_public=True)
 
         return SettingResponse.model_validate(
-            self.repository.get_by_key(SettingKeys.HERO_CAROUSEL_IMAGES)
+            self._repository.get_by_key(SettingKeys.HERO_CAROUSEL_IMAGES)
         )
 
     async def delete_banner(self, banner_url: str) -> bool:
