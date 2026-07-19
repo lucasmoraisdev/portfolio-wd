@@ -11,10 +11,17 @@ from .models import SettingModel
 class SettingsRepository:
     def __init__(self, db: Session) -> None:
         self._db = db
+        self._cache = None
+
+    def preload(self) -> None:
+        stmt = select(SettingModel)
+        settings = self._db.scalars(stmt).all()
+        self._cache = {s.key: s for s in settings}
 
     def get_by_key(self, key: str) -> SettingModel | None:
-        stmt = select(SettingModel).where(SettingModel.key == key)
-        return self._db.execute(stmt).scalar_one_or_none()
+        if self._cache is None:
+            self.preload()
+        return self._cache.get(key)
     
     def list_all(self, limit: int = 100, offset: int = 0) -> list[SettingModel]:
         stmt = (
@@ -53,9 +60,15 @@ class SettingsRepository:
                 is_public=is_public
             )
             self._db.add(setting)
+            if self._cache is not None:
+                self._cache[key] = setting
         
         self._db.commit()
         self._db.refresh(setting)
+        
+        if self._cache is not None:
+            self._cache[key] = setting
+            
         return setting
     
     def bulk_update(self, settings: dict[str, Any]) -> list[SettingModel]:
@@ -75,6 +88,8 @@ class SettingsRepository:
             return False
         self._db.delete(setting)
         self._db.commit()
+        if self._cache is not None:
+            self._cache.pop(key, None)
         return True
     
     def delete_by_prefix(self, prefix: str) -> int:
