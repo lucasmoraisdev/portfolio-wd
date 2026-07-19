@@ -210,6 +210,102 @@ export default function SettingsAdminPage() {
     }
   };
 
+  const getUuidFromUrl = (url: string): string | null => {
+    if (!url) return null;
+    const match = url.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+    return match ? match[0] : null;
+  };
+
+  const handleRemoveLogo = async () => {
+    if (!confirm("Tem certeza que deseja remover e excluir permanentemente o logo principal?")) {
+      return;
+    }
+
+    try {
+      const uuid = getUuidFromUrl(formLogo);
+      if (uuid) {
+        try {
+          await api.upload.delete(uuid);
+        } catch (err: any) {
+          const errMsg = (err.message || "").toLowerCase();
+          const isFileNotFound = 
+            errMsg.includes("not found") || 
+            errMsg.includes("não encontrado") || 
+            errMsg.includes("404") || 
+            errMsg.includes("file_not_found");
+          if (!isFileNotFound) {
+            throw err;
+          }
+        }
+      }
+      await api.settings.updateBulk({ upload_logo_main: null });
+      setFormLogo("");
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message || "Erro ao remover o logo principal.");
+    }
+  };
+
+  const handleRemoveBgImage = async () => {
+    if (!confirm("Tem certeza que deseja remover e excluir permanentemente a imagem de fundo?")) {
+      return;
+    }
+
+    try {
+      const uuid = getUuidFromUrl(formBgImage);
+      if (uuid) {
+        try {
+          await api.upload.delete(uuid);
+        } catch (err: any) {
+          const errMsg = (err.message || "").toLowerCase();
+          const isFileNotFound = 
+            errMsg.includes("not found") || 
+            errMsg.includes("não encontrado") || 
+            errMsg.includes("404") || 
+            errMsg.includes("file_not_found");
+          if (!isFileNotFound) {
+            throw err;
+          }
+        }
+      }
+      await api.hero.update({ background_image: null });
+      setFormBgImage("");
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message || "Erro ao remover a imagem de fundo.");
+    }
+  };
+
+  const handleRemoveBgVideo = async () => {
+    if (!confirm("Tem certeza que deseja remover e excluir permanentemente o vídeo de fundo?")) {
+      return;
+    }
+
+    try {
+      const uuid = getUuidFromUrl(formBgVideo);
+      if (uuid) {
+        try {
+          await api.upload.delete(uuid);
+        } catch (err: any) {
+          const errMsg = (err.message || "").toLowerCase();
+          const isFileNotFound = 
+            errMsg.includes("not found") || 
+            errMsg.includes("não encontrado") || 
+            errMsg.includes("404") || 
+            errMsg.includes("file_not_found");
+          if (!isFileNotFound) {
+            throw err;
+          }
+        }
+      }
+      await api.hero.update({ background_video: null });
+      setFormBgVideo("");
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message || "Erro ao remover o vídeo de fundo.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitting(true);
@@ -623,7 +719,7 @@ export default function SettingsAdminPage() {
                 <img src={formLogo} alt="Logo Preview" className="object-contain w-full h-full" />
                 <button
                   type="button"
-                  onClick={() => setFormLogo("")}
+                  onClick={handleRemoveLogo}
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-950/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-450 transition-colors"
                 >
                   Remover
@@ -693,7 +789,7 @@ export default function SettingsAdminPage() {
                 <img src={formBgImage} alt="Hero Background Preview" className="object-cover w-full h-full" />
                 <button
                   type="button"
-                  onClick={() => setFormBgImage("")}
+                  onClick={handleRemoveBgImage}
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-950/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-450 transition-colors"
                 >
                   Remover
@@ -740,7 +836,7 @@ export default function SettingsAdminPage() {
                 <span className="truncate pr-4">{formBgVideo}</span>
                 <button
                   type="button"
-                  onClick={() => setFormBgVideo("")}
+                  onClick={handleRemoveBgVideo}
                   className="text-rose-500 hover:text-rose-450 font-bold hover:underline shrink-0"
                 >
                   Remover

@@ -32,13 +32,16 @@ class ToyUpdate(BaseModel):
         max_length=DESCRIPTION_SHORT_MAX,
     )
     full_description: str | None = Field(default=None)
-    min_age: int | None = Field(
-        default=None,
-        le=MIN_AGE,
+    min_age: int = Field(
+        default=MIN_AGE,
+        ge=0,
+        description="Idade mínima recomendada",
     )
-    max_age: int | None = Field(
-        default=None,
-        ge=MAX_AGE,
+
+    max_age: int = Field(
+        default=MAX_AGE,
+        ge=1,
+        description="Idade máxima recomendada",
     )
     capacity: int | None = Field(
         default=None,
