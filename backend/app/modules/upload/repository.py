@@ -82,7 +82,40 @@ class UploadRepository:
         except Exception as e:
             logger.error("Erro ao limpar referências de uploads nos brinquedos: %s", e)
 
-        # Commit updates to event and toy records
+        # Clean up references in Settings
+        try:
+            from app.modules.settings.models import SettingModel
+            settings_records = self._db.scalars(select(SettingModel)).all()
+            for setting in settings_records:
+                if setting.value is None:
+                    continue
+
+                upload_id_str = str(upload_id)
+                changed = False
+
+                # Case 1: Value is a string containing the upload URL/UUID
+                if isinstance(setting.value, str):
+                    if upload_id_str in setting.value:
+                        setting.value = None
+                        changed = True
+
+                # Case 2: Value is a list (e.g. list of URLs)
+                elif isinstance(setting.value, list):
+                    new_list = []
+                    for item in setting.value:
+                        if isinstance(item, str) and upload_id_str in item:
+                            changed = True
+                        else:
+                            new_list.append(item)
+                    if changed:
+                        setting.value = new_list
+
+                if changed:
+                    self._db.add(setting)
+        except Exception as e:
+            logger.error("Erro ao limpar referências de uploads nas configurações: %s", e)
+
+        # Commit updates to event, toy and settings records
         self._db.commit()
 
         # Now get and delete Upload record if it exists
