@@ -296,6 +296,31 @@ export default function LandingPage() {
     text: string;
   } | null>(null);
 
+  // Load initial cached data from localStorage on mount (client-side only)
+  useEffect(() => {
+    try {
+      const cachedHero = localStorage.getItem("portfolio_cache_hero");
+      if (cachedHero) setHero(JSON.parse(cachedHero));
+
+      const cachedSettings = localStorage.getItem("portfolio_cache_settings");
+      if (cachedSettings) setSettings(JSON.parse(cachedSettings));
+
+      const cachedToys = localStorage.getItem("portfolio_cache_toys");
+      if (cachedToys) setToys(JSON.parse(cachedToys));
+
+      const cachedEvents = localStorage.getItem("portfolio_cache_events");
+      if (cachedEvents) setEvents(JSON.parse(cachedEvents));
+
+      const cachedTestimonials = localStorage.getItem("portfolio_cache_testimonials");
+      if (cachedTestimonials) setTestimonials(JSON.parse(cachedTestimonials));
+
+      const cachedFaqs = localStorage.getItem("portfolio_cache_faqs");
+      if (cachedFaqs) setFaqs(JSON.parse(cachedFaqs));
+    } catch (e) {
+      console.error("Erro ao ler dados do cache local:", e);
+    }
+  }, []);
+
   // Load configuration from API
   useEffect(() => {
     // 0. Fetch Settings
@@ -304,6 +329,7 @@ export default function LandingPage() {
       .then((res) => {
         if (res?.data) {
           setSettings(res.data);
+          localStorage.setItem("portfolio_cache_settings", JSON.stringify(res.data));
         }
       })
       .catch((err) => console.log("Erro ao buscar Settings:", err));
@@ -312,9 +338,9 @@ export default function LandingPage() {
     api.hero
       .getPublic()
       .then((res) => {
-        console.log("HERO: ", res.data);
         if (res?.data) {
           setHero(res.data);
+          localStorage.setItem("portfolio_cache_hero", JSON.stringify(res.data));
         }
       })
       .catch((err) => console.log("Erro ao buscar Hero:", err));
@@ -325,6 +351,7 @@ export default function LandingPage() {
       .then((res) => {
         if (res?.data?.items && res.data.items.length > 0) {
           setToys(res.data.items);
+          localStorage.setItem("portfolio_cache_toys", JSON.stringify(res.data.items));
         }
       })
       .catch((err) => console.log("Erro ao buscar Brinquedos:", err));
@@ -335,6 +362,7 @@ export default function LandingPage() {
       .then((res) => {
         if (res?.data?.items && res.data.items.length > 0) {
           setEvents(res.data.items);
+          localStorage.setItem("portfolio_cache_events", JSON.stringify(res.data.items));
         }
       })
       .catch((err) => console.log("Erro ao buscar Eventos:", err));
@@ -345,6 +373,7 @@ export default function LandingPage() {
       .then((res) => {
         if (res?.data?.items && res.data.items.length > 0) {
           setTestimonials(res.data.items);
+          localStorage.setItem("portfolio_cache_testimonials", JSON.stringify(res.data.items));
         }
       })
       .catch((err) => console.log("Erro ao buscar Depoimentos:", err));
@@ -355,6 +384,7 @@ export default function LandingPage() {
       .then((res) => {
         if (res?.data?.items && res.data.items.length > 0) {
           setFaqs(res.data.items);
+          localStorage.setItem("portfolio_cache_faqs", JSON.stringify(res.data.items));
         }
       })
       .catch((err) => console.log("Erro ao buscar FAQs:", err));
