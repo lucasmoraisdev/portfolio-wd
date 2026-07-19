@@ -3,6 +3,7 @@ from typing import Any
 from app.modules.settings.repository import SettingsRepository
 from app.modules.settings.constants import SettingKeys
 from app.modules.hero.schemas import HeroResponse, HeroUpdate
+from app.utils.urls import resolve_upload_url
 
 class HeroService:
     def __init__(self, repository: SettingsRepository) -> None:
@@ -16,6 +17,11 @@ class HeroService:
         self.repository.create_or_update(key, value, type_, is_public=True)
 
     def get_hero(self) -> HeroResponse:
+        carousel_images_val = self._get_val(SettingKeys.HERO_CAROUSEL_IMAGES, [])
+        resolved_carousel = []
+        if isinstance(carousel_images_val, list):
+            resolved_carousel = [resolve_upload_url(img) for img in carousel_images_val if img]
+
         return HeroResponse(
             tag=self._get_val(SettingKeys.HERO_TAG),
             title=self._get_val(SettingKeys.HERO_TITLE),
@@ -25,9 +31,9 @@ class HeroService:
             primary_link=self._get_val(SettingKeys.HERO_PRIMARY_LINK),
             secondary_button=self._get_val(SettingKeys.HERO_SECONDARY_BUTTON),
             secondary_link=self._get_val(SettingKeys.HERO_SECONDARY_LINK),
-            background_image=self._get_val(SettingKeys.HERO_BACKGROUND_IMAGE),
-            background_video=self._get_val(SettingKeys.HERO_BACKGROUND_VIDEO),
-            carousel_images=self._get_val(SettingKeys.HERO_CAROUSEL_IMAGES, []),
+            background_image=resolve_upload_url(self._get_val(SettingKeys.HERO_BACKGROUND_IMAGE)),
+            background_video=resolve_upload_url(self._get_val(SettingKeys.HERO_BACKGROUND_VIDEO)),
+            carousel_images=resolved_carousel,
             carousel_transition=self._get_val(SettingKeys.HERO_CAROUSEL_TRANSITION, 5),
             safety_cards=self._get_val(SettingKeys.HERO_SAFETY_CARDS, []),
             bg_color=self._get_val(SettingKeys.HERO_BG_COLOR),

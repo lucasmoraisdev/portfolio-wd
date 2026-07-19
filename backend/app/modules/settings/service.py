@@ -11,6 +11,7 @@ from .schemas import (
     SettingResponse
 )
 from app.modules.upload.service import UploadService
+from app.utils.urls import resolve_upload_url
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +97,11 @@ class SettingsService:
         }
 
     def _build_hero(self) -> dict[str, Any]:
+        carousel_images_val = self._get_value(SettingKeys.HERO_CAROUSEL_IMAGES, [])
+        resolved_carousel = []
+        if isinstance(carousel_images_val, list):
+            resolved_carousel = [resolve_upload_url(img) for img in carousel_images_val if img]
+
         return {
             "tag": self._get_value(SettingKeys.HERO_TAG),
             "title": self._get_value(SettingKeys.HERO_TITLE),
@@ -105,9 +111,9 @@ class SettingsService:
             "primary_link": self._get_value(SettingKeys.HERO_PRIMARY_LINK),
             "secondary_button": self._get_value(SettingKeys.HERO_SECONDARY_BUTTON),
             "secondary_link": self._get_value(SettingKeys.HERO_SECONDARY_LINK),
-            "background_image": self._get_value(SettingKeys.HERO_BACKGROUND_IMAGE),
-            "background_video": self._get_value(SettingKeys.HERO_BACKGROUND_VIDEO),
-            "carousel_images": self._get_value(SettingKeys.HERO_CAROUSEL_IMAGES, []),
+            "background_image": resolve_upload_url(self._get_value(SettingKeys.HERO_BACKGROUND_IMAGE)),
+            "background_video": resolve_upload_url(self._get_value(SettingKeys.HERO_BACKGROUND_VIDEO)),
+            "carousel_images": resolved_carousel,
             "carousel_transition": self._get_value(SettingKeys.HERO_CAROUSEL_TRANSITION, 5),
             "safety_cards": self._get_value(SettingKeys.HERO_SAFETY_CARDS, []),
             "bg_color": self._get_value(SettingKeys.HERO_BG_COLOR),
@@ -245,15 +251,9 @@ class SettingsService:
             "share_banner": self._get_value(SettingKeys.UPLOAD_SHARE_BANNER),
         }
 
-        # Resolve IDs de upload para URLs públicas
-        # Se o valor for um UUID, busca a URL do upload
         resolved = {}
         for key, value in refs.items():
-            if value and isinstance(value, str):
-                # Aqui poderia buscar no upload_service se for UUID
-                resolved[key] = value
-            else:
-                resolved[key] = None
+            resolved[key] = resolve_upload_url(value)
 
         return resolved
 
